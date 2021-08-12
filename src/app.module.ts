@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { GraphqlModule } from './common/graphql/graphql.module';
+import { CommonModule } from './common/common.module';
+import { AuthResolver } from './modules/auth/auth.resolver';
+
+const services = [];
 
 @Module({
-  imports: [GraphqlModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [CommonModule],
+  providers: [AuthResolver],
 })
 export class AppModule {}

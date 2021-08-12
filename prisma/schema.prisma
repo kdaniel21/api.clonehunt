@@ -1,0 +1,37 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  email     String?  @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  upvotes   Upvote[]
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  url          String?
+  numOfUpvotes Int      @default(0) @map("num_of_upvotes")
+  upvotes      Upvote[]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+}
+
+model Upvote {
+  id        String   @id @default(cuid())
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+}
