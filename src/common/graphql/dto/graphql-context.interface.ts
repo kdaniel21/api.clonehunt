@@ -1,4 +1,6 @@
+import express from 'express';
+
 export interface GraphqlContext {
-  req: Express.Request;
-  res: Express.Response;
+  req: express.Request;
+  res: express.Response;
 }
