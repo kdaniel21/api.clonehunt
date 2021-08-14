@@ -1,9 +1,9 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { User } from '@prisma/client';
 
 @ObjectType()
 export class UserType implements Partial<User> {
-  @Field()
+  @Field(() => ID)
   readonly id: string;
 
   @Field()

@@ -1,6 +1,6 @@
 import { PaginationArgs } from '@common/graphql/dto/pagination.args';
 import { UseGuards } from '@nestjs/common';
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { Product } from '@prisma/client';
 import { ProductType } from './dto/product.type';
 import { CreateProductArgs } from './services/product/dto/create-product.args';
@@ -28,7 +28,7 @@ export class ProductsResolver {
 
   @Mutation(() => ProductType)
   updateProduct(
-    @Args('id') productId: string,
+    @Args('id', ID) productId: string,
     @Args() args: UpdateProductArgs,
     @JwtPayload() payload: AccessTokenPayload,
   ): Promise<Product> {
@@ -38,7 +38,7 @@ export class ProductsResolver {
   }
 
   @Mutation(() => MessageType)
-  async deleteProduct(@Args('id') productId: string): Promise<MessageType> {
+  async deleteProduct(@Args('id', ID) productId: string): Promise<MessageType> {
     await this.productService.deleteProduct(productId);
 
     const message = 'The selected product has been successfully removed!';
@@ -46,7 +46,7 @@ export class ProductsResolver {
   }
 
   @Query(() => ProductType)
-  product(@Args('id') productId: string): Promise<ProductType> {
+  product(@Args('id', ID) productId: string): Promise<ProductType> {
     return this.productService.findProductById(productId);
   }
 
@@ -64,14 +64,14 @@ export class ProductsResolver {
   }
 
   @Mutation(() => ProductType)
-  upvoteProduct(@Args('id') productId: string, @JwtPayload() payload: AccessTokenPayload): Promise<ProductType> {
+  upvoteProduct(@Args('id', ID) productId: string, @JwtPayload() payload: AccessTokenPayload): Promise<ProductType> {
     const { id: userId } = payload;
 
     return this.upvoteService.upvoteProduct({ productId, userId });
   }
 
   @Mutation(() => ProductType)
-  downvoteProduct(@Args('id') productId: string, @JwtPayload() payload: AccessTokenPayload): Promise<ProductType> {
+  downvoteProduct(@Args('id', ID) productId: string, @JwtPayload() payload: AccessTokenPayload): Promise<ProductType> {
     const { id: userId } = payload;
 
     return this.upvoteService.downvoteProduct({ productId, userId });

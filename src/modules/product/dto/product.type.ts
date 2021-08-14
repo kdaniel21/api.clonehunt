@@ -1,10 +1,10 @@
 import { UserType } from '@auth/dto/user.type';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Product } from '@prisma/client';
 
 @ObjectType()
 export class ProductType implements Product {
-  @Field()
+  @Field(() => ID)
   readonly id: string;
 
   @Field()
