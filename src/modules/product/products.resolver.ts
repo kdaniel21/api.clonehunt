@@ -13,6 +13,9 @@ import { MessageType } from '@common/graphql/dto/message.type';
 import { JwtPayload } from '@auth/decorators/jwt-payload.decorator';
 import { AccessTokenPayload } from '@auth/services/access-token/dto/jwt-payload.interface';
 import { UpvoteService } from './services/upvote/upvote.service';
+import { ProductsArgs } from './services/product/dto/products-args';
+
+const IDType = { type: () => ID };
 
 @UseGuards(GqlAuthGuard)
 @Resolver()
@@ -28,7 +31,7 @@ export class ProductsResolver {
 
   @Mutation(() => ProductType)
   updateProduct(
-    @Args('id', ID) productId: string,
+    @Args('id', IDType) productId: string,
     @Args() args: UpdateProductArgs,
     @JwtPayload() payload: AccessTokenPayload,
   ): Promise<Product> {
@@ -38,7 +41,7 @@ export class ProductsResolver {
   }
 
   @Mutation(() => MessageType)
-  async deleteProduct(@Args('id', ID) productId: string): Promise<MessageType> {
+  async deleteProduct(@Args('id', IDType) productId: string): Promise<MessageType> {
     await this.productService.deleteProduct(productId);
 
     const message = 'The selected product has been successfully removed!';
@@ -46,15 +49,17 @@ export class ProductsResolver {
   }
 
   @Query(() => ProductType)
-  product(@Args('id', ID) productId: string): Promise<ProductType> {
+  product(@Args('id', IDType) productId: string): Promise<ProductType> {
     return this.productService.findProductById(productId);
   }
 
   @Query(() => ProductsType)
-  products(@Args() args: PaginationArgs): Promise<ProductsType> {
+  products(@Args() args: ProductsArgs): Promise<ProductsType> {
+    const { startDate, endDate } = args;
+
     return findManyCursorConnection(
-      (args) => this.productService.getProducts(args),
-      () => this.productService.getTotalNumberOfProducts(),
+      (defaultArgs) => this.productService.getProducts(defaultArgs, { startDate, endDate }),
+      () => this.productService.getTotalNumberOfProducts({ startDate, endDate }),
       args,
       {
         encodeCursor: (cursor) => Buffer.from(JSON.stringify(cursor)).toString('base64'),
@@ -64,16 +69,22 @@ export class ProductsResolver {
   }
 
   @Mutation(() => ProductType)
-  upvoteProduct(@Args('id', ID) productId: string, @JwtPayload() payload: AccessTokenPayload): Promise<ProductType> {
+  async upvoteProduct(
+    @Args('id', IDType) productId: string,
+    @JwtPayload() payload: AccessTokenPayload,
+  ): Promise<ProductType> {
     const { id: userId } = payload;
 
     return this.upvoteService.upvoteProduct({ productId, userId });
   }
 
   @Mutation(() => ProductType)
-  downvoteProduct(@Args('id', ID) productId: string, @JwtPayload() payload: AccessTokenPayload): Promise<ProductType> {
+  removeProductUpvote(
+    @Args('id', IDType) productId: string,
+    @JwtPayload() payload: AccessTokenPayload,
+  ): Promise<ProductType> {
     const { id: userId } = payload;
 
-    return this.upvoteService.downvoteProduct({ productId, userId });
+    return this.upvoteService.removeProductUpvote({ productId, userId });
   }
 }

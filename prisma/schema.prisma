@@ -14,7 +14,7 @@ model User {
   email     String?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
-  upvotes   Vote[]
+  upvotes   Upvote[]
   Product   Product[]
 }
 
@@ -23,22 +23,16 @@ model Product {
   name         String
   description  String?
   url          String?
-  numOfUpvotes Int      @default(0) @map("num_of_upvotes")
-  votes        Vote[]
+  upvoteCount Int      @default(0) @map("num_of_upvotes")
+  votes        Upvote[]
   user         User     @relation(fields: [userId], references: [id])
   userId       String   @map("user_id")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 }
 
-enum VoteType {
-  Upvote
-  Downvote
-}
-
-model Vote {
+model Upvote {
   id        String   @id @default(cuid())
-  type      VoteType
   product   Product? @relation(fields: [productId], references: [id])
   productId String?  @map("product_id")
   user      User     @relation(fields: [userId], references: [id])

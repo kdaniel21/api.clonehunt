@@ -47,6 +47,14 @@ export class AuthResolver {
   }
 
   @UseGuards(GqlAuthGuard)
+  @Mutation(() => MessageType)
+  logout(@Context() context: GraphqlContext): MessageType {
+    context.res.cookie('access-token', 'invalidated', { expires: new Date() });
+
+    return { message: 'You have been successfully logged out!' };
+  }
+
+  @UseGuards(GqlAuthGuard)
   @UseInterceptors(ResolveCurrentUserInterceptor)
   @Query(() => UserType)
   currentUser(@CurrentUser() user: User): UserType {

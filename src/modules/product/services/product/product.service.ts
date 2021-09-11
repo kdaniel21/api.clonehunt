@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Product } from '@prisma/client';
 import { ProductExceptions } from '../../product.exceptions';
 import { CreateProductArgs } from './dto/create-product.args';
+import { ProductsArgs } from './dto/products-args';
 import { UpdateProductArgs } from './dto/update-product.args';
 
 @Injectable()
@@ -20,12 +21,21 @@ export class ProductService {
     return product;
   }
 
-  getProducts(args: Prisma.ProductFindManyArgs): Promise<Product[]> {
-    return this.prisma.product.findMany(args);
+  getProducts(
+    args: Prisma.ProductFindManyArgs,
+    timeFilter?: Pick<ProductsArgs, 'startDate' | 'endDate'>,
+  ): Promise<Product[]> {
+    return this.prisma.product.findMany({
+      ...args,
+      where: { AND: [{ createdAt: { gte: timeFilter?.startDate } }, { createdAt: { lte: timeFilter?.endDate } }] },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  getTotalNumberOfProducts(): Promise<number> {
-    return this.prisma.product.count();
+  getTotalNumberOfProducts(timeFilter?: Pick<ProductsArgs, 'startDate' | 'endDate'>): Promise<number> {
+    return this.prisma.product.count({
+      where: { AND: [{ createdAt: { gte: timeFilter?.startDate } }, { createdAt: { lte: timeFilter?.endDate } }] },
+    });
   }
 
   async updateProduct(id: string, args: UpdateProductArgs, userId: string): Promise<Product> {

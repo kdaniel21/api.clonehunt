@@ -17,7 +17,10 @@ export class ProductType implements Product {
   readonly url: string;
 
   @Field()
-  readonly numOfUpvotes: number;
+  readonly upvoteCount: number;
+
+  @Field()
+  readonly isUpvotedByCurrentUser?: boolean;
 
   @Field(() => UserType)
   readonly user?: UserType;
